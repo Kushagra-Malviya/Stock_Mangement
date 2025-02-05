@@ -1,0 +1,1 @@
+A Stock Market Management System (SMMS) is a database-driven application that helps manage stock trading activities, investor portfolios, and market transactions efficiently. Using SQL for database management ensures data integrity, efficient querying, and secure handling of stock-related information.
