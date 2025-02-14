@@ -145,7 +145,11 @@ def signup_page():
 def user_dashboard():
     st.title("StockUp - User Dashboard")
     
-    user_id = st.session_state.user_id
+    user_id = st.session_state.get("user_id")
+    if not user_id:
+        st.error("User not logged in.")
+        return
+    
     balance = get_wallet_balance(user_id)
     
     st.sidebar.title("Navigation")
@@ -157,14 +161,19 @@ def user_dashboard():
     st.write(f"Welcome, User ID: {user_id}")
     st.write(f"Your current balance: ₹{balance}")
     
-    if st.button("Add Money to Wallet"):
-        amount = st.number_input("Enter amount to add", min_value=0.0)
-        if st.button("Add"):
+    # Add Money Section
+    st.subheader("Add Money to Wallet")
+    amount = st.number_input("Enter amount to add", min_value=0.0, format="%.2f")
+    if st.button("Add Money"):
+        if amount > 0:
             new_balance = balance + decimal.Decimal(amount)
             update_wallet_balance(user_id, new_balance)
             st.success(f"Added ₹{amount} to your wallet. New balance: ₹{new_balance}")
             st.rerun()
-    
+        else:
+            st.error("Enter a valid amount greater than 0.")
+
+    # Portfolio Section
     st.subheader("Your Portfolio")
     shares_data = check_shares(user_id)
     if shares_data:
@@ -173,17 +182,20 @@ def user_dashboard():
     else:
         st.write("You currently own no shares.")
     
+    # Buy/Sell Shares Section
     st.subheader("Buy/Sell Shares")
     companies = {"TATA": "Tata Motors", "INFO": "Infosys", "RELIANCE": "Reliance Industries", 
                  "ICICI": "ICICI Bank", "HDFC": "HDFC Ltd"}
     selected_company = st.selectbox("Select Company", list(companies.keys()), format_func=lambda x: companies[x])
+
+    company_id = {"TATA": 1, "INFO": 2, "RELIANCE": 3, "ICICI": 4, "HDFC": 5}[selected_company]
     
     if st.button("View Company Details"):
-        company_id = {"TATA": 1, "INFO": 2, "RELIANCE": 3, "ICICI": 4, "HDFC": 5}[selected_company]
         stock_price = get_stock_price(company_id)
         st.write(f"Current stock price for {companies[selected_company]}: ₹{stock_price}")
         
         action = st.radio("Choose Action", ["Buy", "Sell"])
+        
         if action == "Buy":
             shares_to_buy = st.number_input("Enter number of shares to buy", min_value=1, step=1)
             if st.button("Buy Shares"):
@@ -191,14 +203,15 @@ def user_dashboard():
                 if balance >= total_cost:
                     new_balance = balance - total_cost
                     update_wallet_balance(user_id, new_balance)
+                    
                     current_shares = get_user_shares(user_id, company_id)
                     if current_shares > 0:
-                        new_shares = current_shares + shares_to_buy
-                        update_user_shares(user_id, company_id, new_shares)
+                        update_user_shares(user_id, company_id, current_shares + shares_to_buy)
                     else:
                         add_shares_to_portfolio(user_id, company_id, shares_to_buy)
+                    
                     st.success(f"Successfully bought {shares_to_buy} shares of {companies[selected_company]}.")
-                    st.rerun()  # Refresh to reflect the changes
+                    st.rerun()
                 else:
                     st.error("Insufficient balance to make the purchase.")
         
@@ -210,12 +223,13 @@ def user_dashboard():
                     total_sale = decimal.Decimal(shares_to_sell) * decimal.Decimal(stock_price)
                     new_balance = balance + total_sale
                     update_wallet_balance(user_id, new_balance)
+                    
                     remove_shares_from_portfolio(user_id, company_id, shares_to_sell)
+                    
                     st.success(f"Successfully sold {shares_to_sell} shares of {companies[selected_company]}.")
-                    st.rerun()  # Refresh after selling shares
+                    st.rerun()
                 else:
                     st.error("You do not have enough shares to make the sale.")
-
 
 
 def admin_login_page():
