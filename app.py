@@ -157,5 +157,5 @@ def main():
             admin_login_page()
 
 if __name__ == "__main__":
-  initialize_database()
-   main()
+    initialize_database()
+    main()
