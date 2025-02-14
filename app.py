@@ -3,22 +3,6 @@ import re
 import streamlit as st
 import sqlite3
 from PIL import Image
-
-
-def initialize_database():
-    conn = sqlite3.connect("stockup.db")  # Ensure you're using the correct database file
-    cursor = conn.cursor()
-
-    try:
-        with open("Create.sql", "r") as file:
-            sql_script = file.read()
-        cursor.executescript(sql_script)
-        conn.commit()
-        print("Database initialized successfully.")
-    except Exception as e:
-        print(f"Error initializing database: {e}")
-    finally:
-        conn.close()
       
 # Database connection
 def connect_to_database():
@@ -157,5 +141,4 @@ def main():
             admin_login_page()
 
 if __name__ == "__main__":
-    initialize_database()
     main()
