@@ -31,8 +31,8 @@ def get_wallet_balance(user_id):
     return result[0] if result else None
 
 def update_wallet_balance(user_id, new_balance):
-    cursor.execute("UPDATE wallets SET balance = ? WHERE user_id = ?", (new_balance, user_id))
-    connection.commit()
+    cursor.execute("UPDATE wallets SET balance = ? WHERE user_id = ?", (float(new_balance), user_id))
+    conn.commit()
 
 def check_shares(user_id):
     cursor.execute("""
