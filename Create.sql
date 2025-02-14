@@ -1,7 +1,3 @@
-CREATE DATABASE stock_market_db;
-
-USE stock_market_db;
-
 CREATE TABLE users (
   user_id INT NOT NULL AUTO_INCREMENT,
   full_name VARCHAR(255) NOT NULL,
