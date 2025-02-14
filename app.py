@@ -185,35 +185,37 @@ def user_dashboard():
         
         action = st.radio("Choose Action", ["Buy", "Sell"])
         if action == "Buy":
-            shares_to_buy = st.number_input("Enter number of shares to buy", min_value=1)
-            if st.button("Buy Shares"):
-                total_cost = shares_to_buy * stock_price
-                if balance >= total_cost:
-                    new_balance = balance - decimal.Decimal(total_cost)
-                    update_wallet_balance(user_id, new_balance)
-                    current_shares = get_user_shares(user_id, company_id)
-                    if current_shares > 0:
-                        new_shares = current_shares + shares_to_buy
-                        update_user_shares(user_id, company_id, new_shares)
-                    else:
-                        add_shares_to_portfolio(user_id, company_id, shares_to_buy)
-                    st.success(f"Successfully bought {shares_to_buy} shares of {companies[selected_company]}.")
-                    st.rerun()
-                else:
-                    st.error("Insufficient balance to make the purchase.")
+    shares_to_buy = st.number_input("Enter number of shares to buy", min_value=1, step=1)
+    if st.button("Buy Shares"):
+        total_cost = decimal.Decimal(shares_to_buy) * decimal.Decimal(stock_price)
+        if balance >= total_cost:
+            new_balance = balance - total_cost
+            update_wallet_balance(user_id, new_balance)
+            current_shares = get_user_shares(user_id, company_id)
+            if current_shares > 0:
+                new_shares = current_shares + shares_to_buy
+                update_user_shares(user_id, company_id, new_shares)
+            else:
+                add_shares_to_portfolio(user_id, company_id, shares_to_buy)
+            st.success(f"Successfully bought {shares_to_buy} shares of {companies[selected_company]}.")
+            st.rerun()  # Refresh to reflect the changes
         else:
-            shares_to_sell = st.number_input("Enter number of shares to sell", min_value=1)
-            if st.button("Sell Shares"):
-                current_shares = get_user_shares(user_id, company_id)
-                if current_shares >= shares_to_sell:
-                    total_sale = shares_to_sell * stock_price
-                    new_balance = balance + decimal.Decimal(total_sale)
-                    update_wallet_balance(user_id, new_balance)
-                    remove_shares_from_portfolio(user_id, company_id, shares_to_sell)
-                    st.success(f"Successfully sold {shares_to_sell} shares of {companies[selected_company]}.")
-                    st.rerun()
-                else:
-                    st.error("You do not have enough shares to make the sale.")
+            st.error("Insufficient balance to make the purchase.")
+
+    elif action == "Sell":
+        shares_to_sell = st.number_input("Enter number of shares to sell", min_value=1, step=1)
+        if st.button("Sell Shares"):
+            current_shares = get_user_shares(user_id, company_id)
+            if current_shares >= shares_to_sell:
+                total_sale = decimal.Decimal(shares_to_sell) * decimal.Decimal(stock_price)
+                new_balance = balance + total_sale
+                update_wallet_balance(user_id, new_balance)
+                remove_shares_from_portfolio(user_id, company_id, shares_to_sell)
+                st.success(f"Successfully sold {shares_to_sell} shares of {companies[selected_company]}.")
+                st.rerun()  # Refresh after selling shares
+            else:
+                st.error("You do not have enough shares to make the sale.")
+
 
 def admin_login_page():
     st.title("StockUp - Admin Login")
