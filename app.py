@@ -10,7 +10,7 @@ def initialize_database():
     cursor = conn.cursor()
 
     try:
-        with open("create.sql", "r") as file:
+        with open("Create.sql", "r") as file:
             sql_script = file.read()
         cursor.executescript(sql_script)
         conn.commit()
